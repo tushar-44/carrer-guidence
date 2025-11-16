@@ -1,0 +1,19 @@
+// Re-export all existing skill icons for easy access
+export { PythonIcon } from "@/components/icons/skills/python-icon";
+export { TypescriptIcon } from "@/components/icons/skills/typescript-icon";
+export { ReactIcon } from "@/components/icons/skills/react-icon";
+export { NextjsIcon } from "@/components/icons/skills/next-js-icon";
+export { FastAPIIcon } from "@/components/icons/skills/fast-api-icon";
+export { ViteIcon } from "@/components/icons/skills/vite-icon";
+export { LangchainIcon } from "@/components/icons/skills/langchain-icon";
+export { OpenaiIcon } from "@/components/icons/skills/open-ai-icon";
+export { HuggingFaceIcon } from "@/components/icons/skills/hugging-face-icon";
+export { OpencvIcon } from "@/components/icons/skills/open-cv-icon";
+export { PineconeIcon } from "@/components/icons/skills/pinecone-icon";
+export { PrismaIcon } from "@/components/icons/skills/prisma-icon";
+export { PostgresqlIcon } from "@/components/icons/skills/postgresql-icon";
+export { MongodbIcon } from "@/components/icons/skills/mongo-db-icon";
+export { DockerIcon } from "@/components/icons/skills/docker-icon";
+export { VercelIcon } from "@/components/icons/skills/vercel-icon";
+export { StripeIcon } from "@/components/icons/skills/stripe-icon";
+export { ClerkIcon } from "@/components/icons/skills/clerk-icon";

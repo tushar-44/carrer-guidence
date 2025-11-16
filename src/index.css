@@ -1,0 +1,423 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  
+  /* Custom Accent Colors */
+  --color-accent-pink: var(--accent-pink);
+  --color-accent-purple: var(--accent-purple);
+  --color-accent-cyan: var(--accent-cyan);
+  --color-accent-green: var(--accent-green);
+  --color-accent-orange: var(--accent-orange);
+
+  /* Font Family Configuration */
+  --font-heading: 'Azonix';
+  --font-body: 'Inter';
+  --animate-shiny-text: shiny-text 8s infinite;
+  @keyframes shiny-text {
+  0%, 90%, 100% {
+    background-position: calc(-100% - var(--shiny-width)) 0;
+    }
+  30%, 60% {
+    background-position: calc(100% + var(--shiny-width)) 0;
+    }
+  }
+  --animate-shine: shine var(--duration) infinite linear
+;
+  @keyframes shine {
+  0% {
+    background-position: 0% 0%;}
+  50% {
+    background-position: 100% 100%;}
+  to {
+    background-position: 0% 0%;}}
+  --animate-background-position-spin: background-position-spin 3000ms infinite alternate;
+  @keyframes background-position-spin {
+  0% {
+    background-position: top center;}
+  100% {
+    background-position: bottom center;}}
+  --animate-rainbow: rainbow var(--speed, 2s) infinite linear;
+  --color-color-5: var(--color-5);
+  --color-color-4: var(--color-4);
+  --color-color-3: var(--color-3);
+  --color-color-2: var(--color-2);
+  --color-color-1: var(--color-1);
+  @keyframes rainbow {
+  0% {
+    background-position: 0%;}
+  100% {
+    background-position: 200%;}}
+  --animate-marquee: marquee var(--duration) infinite linear;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+  @keyframes marquee {
+  from {
+    transform: translateX(0);}
+  to {
+    transform: translateX(calc(-100% - var(--gap)));}}
+  @keyframes marquee-vertical {
+  from {
+    transform: translateY(0);}
+  to {
+    transform: translateY(calc(-100% - var(--gap)));}}
+  
+  /* Gradient animation for borders */
+  --animate-gradient-xy: gradient-xy 3s ease infinite;
+  @keyframes gradient-xy {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+  
+  /* Pulse glow animation */
+  --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 40px rgba(139, 92, 246, 0.6);
+    }
+  }
+}
+
+:root {
+  --radius: 0.75rem;
+  
+  /* Modern Dark Theme with Vibrant Accents */
+  --background: oklch(0.15 0.02 264); /* Deep navy blue background */
+  --foreground: oklch(0.98 0.01 264); /* Bright white text */
+  
+  --card: oklch(0.18 0.025 264); /* Slightly lighter than background */
+  --card-foreground: oklch(0.98 0.01 264);
+  
+  --popover: oklch(0.18 0.025 264);
+  --popover-foreground: oklch(0.98 0.01 264);
+  
+  /* Vibrant Purple Primary */
+  --primary: oklch(0.65 0.25 285); /* Vibrant purple */
+  --primary-foreground: oklch(0.98 0.01 264);
+  
+  /* Cyan Secondary */
+  --secondary: oklch(0.25 0.03 264); /* Dark blue-gray */
+  --secondary-foreground: oklch(0.85 0.05 200); /* Cyan text */
+  
+  --muted: oklch(0.22 0.025 264);
+  --muted-foreground: oklch(0.65 0.02 264);
+  
+  /* Electric Blue Accent */
+  --accent: oklch(0.28 0.04 240); /* Deep blue accent */
+  --accent-foreground: oklch(0.75 0.15 200); /* Bright cyan */
+  
+  --destructive: oklch(0.60 0.22 25); /* Vibrant red */
+  --border: oklch(0.28 0.03 264); /* Subtle border */
+  --input: oklch(0.25 0.03 264);
+  --ring: oklch(0.65 0.25 285); /* Purple ring */
+  
+  /* Vibrant Chart Colors */
+  --chart-1: oklch(0.70 0.20 330); /* Pink */
+  --chart-2: oklch(0.65 0.25 285); /* Purple */
+  --chart-3: oklch(0.70 0.18 200); /* Cyan */
+  --chart-4: oklch(0.75 0.20 150); /* Green */
+  --chart-5: oklch(0.70 0.22 60); /* Yellow */
+  
+  --sidebar: oklch(0.18 0.025 264);
+  --sidebar-foreground: oklch(0.98 0.01 264);
+  --sidebar-primary: oklch(0.65 0.25 285);
+  --sidebar-primary-foreground: oklch(0.98 0.01 264);
+  --sidebar-accent: oklch(0.28 0.04 240);
+  --sidebar-accent-foreground: oklch(0.75 0.15 200);
+  --sidebar-border: oklch(0.28 0.03 264);
+  --sidebar-ring: oklch(0.65 0.25 285);
+  
+  /* Gradient Colors for Effects */
+  --color-1: oklch(0.70 0.20 330); /* Pink */
+  --color-2: oklch(0.65 0.25 285); /* Purple */
+  --color-3: oklch(0.70 0.18 200); /* Cyan */
+  --color-4: oklch(0.75 0.20 150); /* Green */
+  --color-5: oklch(0.70 0.22 60); /* Yellow */
+  
+  /* Additional Accent Colors */
+  --accent-pink: oklch(0.70 0.20 330);
+  --accent-purple: oklch(0.65 0.25 285);
+  --accent-cyan: oklch(0.70 0.18 200);
+  --accent-green: oklch(0.75 0.20 150);
+  --accent-orange: oklch(0.72 0.20 45);
+}
+
+
+
+/* Liquid Glass Effect Classes */
+.glass-texture {
+  position: relative;
+  isolation: isolate;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(1px);
+  -webkit-backdrop-filter: blur(1px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-texture::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 20px -5px rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.02);
+  pointer-events: none;
+}
+
+.glass-texture::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  backdrop-filter: blur(8px);
+  filter: url(#glass-distortion);
+  isolation: isolate;
+}
+
+/* Cursor-specific glass effect that preserves absolute positioning */
+.cursor-glass-effect {
+  backdrop-filter: blur(1px);
+  -webkit-backdrop-filter: blur(1px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.cursor-glass-effect::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 20px -5px rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.02);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.cursor-glass-effect::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  backdrop-filter: blur(8px);
+  filter: url(#glass-distortion);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Bento Grid Square Styling - Enhanced with gradients */
+.bento-square {
+  background: linear-gradient(135deg, oklch(0.18 0.025 264) 0%, oklch(0.20 0.03 270) 100%);
+  border: 1px solid oklch(0.28 0.03 264);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  min-height: 200px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.bento-square::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, oklch(0.65 0.25 285 / 0.05) 0%, oklch(0.70 0.18 200 / 0.05) 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.bento-square:hover {
+  border-color: oklch(0.65 0.25 285 / 0.5);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px oklch(0.65 0.25 285 / 0.2);
+}
+
+.bento-square:hover::before {
+  opacity: 1;
+}
+
+/* Bento Grid Square Styling without minimum height */
+.bento-no-min {
+  background: linear-gradient(135deg, oklch(0.18 0.025 264) 0%, oklch(0.20 0.03 270) 100%);
+  border: 1px solid oklch(0.28 0.03 264);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.bento-no-min::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, oklch(0.65 0.25 285 / 0.05) 0%, oklch(0.70 0.18 200 / 0.05) 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.bento-no-min:hover {
+  border-color: oklch(0.65 0.25 285 / 0.5);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px oklch(0.65 0.25 285 / 0.2);
+}
+
+.bento-no-min:hover::before {
+  opacity: 1;
+}
+
+/* Remove focus rings on dialog triggers and close buttons */
+[data-slot="dialog-trigger"]:focus-visible,
+[data-slot="dialog-close"]:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Home Info Grid text responsive breakpoints */
+.home-info-grid-text-medium {
+  display: none;
+}
+
+.home-info-grid-text-small {
+  display: inline;
+}
+
+/* Edge-to-edge container - extends to bento-square borders */
+.edge-to-edge {
+  margin-left: -2rem !important;
+  margin-right: -2rem !important;
+}
+
+.mobile-home-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid oklch(0.28 0.03 264);
+  border-radius: 2rem;
+  background: linear-gradient(135deg, oklch(0.18 0.025 264) 0%, oklch(0.20 0.03 270) 100%);
+  background-image: 
+    linear-gradient(oklch(0.28 0.03 264) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.28 0.03 264) 1px, transparent 1px);
+  background-size: 60px 60px;
+  background-position: -20px 30px;
+  -webkit-mask-image: radial-gradient(ellipse 85% 85% at 50% 100%, #000 60%, transparent 100%);
+  mask-image: radial-gradient(ellipse 85% 85% at 50% 100%, #000 60%, transparent 100%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* 562px to 767px: Show 2-line version */
+@media (min-width: 562px) and (max-width: 767px) {
+  .home-info-grid-text-medium {
+    display: inline;
+  }
+  .home-info-grid-text-small {
+    display: none;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  
+  body {
+    @apply bg-background text-foreground font-body;
+    background-image: 
+      radial-gradient(at 0% 0%, oklch(0.65 0.25 285 / 0.1) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, oklch(0.70 0.18 200 / 0.1) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, oklch(0.70 0.20 330 / 0.1) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, oklch(0.75 0.20 150 / 0.1) 0px, transparent 50%);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading text-foreground;
+  }
+  
+  p, span, div {
+    @apply text-foreground/90;
+  }
+  
+  .text-muted-foreground {
+    @apply text-muted-foreground;
+  }
+}
+
+/* Custom Gradient Classes */
+.gradient-purple-cyan {
+  background: linear-gradient(135deg, oklch(0.65 0.25 285) 0%, oklch(0.70 0.18 200) 100%);
+}
+
+.gradient-pink-purple {
+  background: linear-gradient(135deg, oklch(0.70 0.20 330) 0%, oklch(0.65 0.25 285) 100%);
+}
+
+.gradient-cyan-green {
+  background: linear-gradient(135deg, oklch(0.70 0.18 200) 0%, oklch(0.75 0.20 150) 100%);
+}
+
+.gradient-mesh {
+  background: 
+    radial-gradient(at 0% 0%, oklch(0.65 0.25 285 / 0.2) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, oklch(0.70 0.18 200 / 0.2) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, oklch(0.70 0.20 330 / 0.2) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, oklch(0.75 0.20 150 / 0.2) 0px, transparent 50%);
+}
+
+/* Glow Effects */
+.glow-purple {
+  box-shadow: 0 0 30px oklch(0.65 0.25 285 / 0.3);
+}
+
+.glow-cyan {
+  box-shadow: 0 0 30px oklch(0.70 0.18 200 / 0.3);
+}
+
+.glow-pink {
+  box-shadow: 0 0 30px oklch(0.70 0.20 330 / 0.3);
+}
