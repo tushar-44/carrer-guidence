@@ -147,15 +147,15 @@ project-root/
 ## 💡 Important Notes
 
 ### Environment Variables
-Your `.env` files already have:
+Your `.env` files should NOT contain secrets in the repository. Replace the example values below with your real keys locally (do NOT commit them):
 ```
-VITE_SUPABASE_URL=https://onmcbkznvimzarqdxwfy.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGci...
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...
-GOOGLE_CLIENT_ID=533661415619...
-GOOGLE_CLIENT_SECRET=GOCSPX...
+VITE_SUPABASE_URL=REPLACE_ME_SUPABASE_URL
+VITE_SUPABASE_ANON_KEY=REPLACE_ME_SUPABASE_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY=REPLACE_ME_SUPABASE_SERVICE_ROLE_KEY
+GOOGLE_CLIENT_ID=REPLACE_ME_GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET=REPLACE_ME_GOOGLE_CLIENT_SECRET
 ```
-✅ **Ready to go - no changes needed**
+Keep sensitive keys in a local `.env` file that is listed in `.gitignore`.
 
 ### Authentication
 - **Email/Password**: Already configured

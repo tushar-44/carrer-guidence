@@ -105,9 +105,9 @@ Go to **SQL Editor** in Supabase and run each SQL query:
   ```
   VITE_SUPABASE_URL=https://onmcbkznvimzarqdxwfy.supabase.co
   ```
-- [ ] Copy **Anon public key** and verify it's in `.env`:
+  - [ ] Copy **Anon public key** and verify it's in `.env` (use a local, redacted placeholder in repo):
   ```
-  VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+  VITE_SUPABASE_ANON_KEY=REPLACE_ME_SUPABASE_ANON_KEY
   ```
 - [ ] Note **Service role key** location for backend operations
 
@@ -120,8 +120,8 @@ Go to **SQL Editor** in Supabase and run each SQL query:
   - [ ] Check "Confirm email" (optional)
   - [ ] Check "Autoconfirm users" for testing
 - [ ] **Google OAuth** - Verify enabled
-  - [ ] Client ID: `533661415619-aos9ajan9u1p706ucj4oasp0nf0q4ctv.apps.googleusercontent.com` ✓
-  - [ ] Client Secret configured ✓
+  - [ ] Client ID: `REPLACE_ME_GOOGLE_CLIENT_ID`
+  - [ ] Client Secret: `REPLACE_ME_GOOGLE_CLIENT_SECRET`
 
 ---
 
