@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useNavigate } from 'react-router-dom';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -9,6 +10,7 @@ export function HeroContent() {
   const titleRef = useRef<HTMLHeadingElement>(null);
   const subtitleRef = useRef<HTMLParagraphElement>(null);
   const buttonsRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -88,12 +90,18 @@ export function HeroContent() {
           AI-powered mentoring, assessments, and job recommendations.
         </p>
         <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <button className="group relative bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-black font-semibold py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 overflow-hidden">
-            <span className="relative z-10">Get Started</span>
+          <button
+            onClick={() => navigate('/assessment')}
+            className="group relative bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-black font-semibold py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 overflow-hidden"
+          >
+            <span className="relative z-10">Start Assessment</span>
             <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
           </button>
-          <button className="group relative border-2 border-black text-black hover:bg-black hover:text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 overflow-hidden">
+          <button
+            onClick={() => navigate('/mentors')}
+            className="group relative border-2 border-black text-black hover:bg-black hover:text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 overflow-hidden"
+          >
             <span className="relative z-10 transition-colors duration-300">Book a Mentor</span>
             <div className="absolute inset-0 bg-black translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
           </button>

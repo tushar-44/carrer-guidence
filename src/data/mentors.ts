@@ -20,6 +20,8 @@ export interface Mentor {
   responseTime: string;
   specializations: string[];
   achievements: string[];
+  mentor_type?: 'near-peer' | 'professional'; // Added for freemium model
+  vetting_status?: 'pending' | 'approved' | 'rejected'; // Added for vetting system
 }
 
 export const mentors: Mentor[] = [

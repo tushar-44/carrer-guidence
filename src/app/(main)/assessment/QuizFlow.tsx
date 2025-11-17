@@ -14,7 +14,12 @@ interface QuizQuestion {
   category: string;
 }
 
-export function QuizFlow({ interests, onQuizComplete }: { interests: string[]; onQuizComplete: () => void }) {
+interface QuizFlowProps {
+  interests: string[];
+  onQuizComplete: (answers: Record<string, string>) => void;
+}
+
+export function QuizFlow({ interests, onQuizComplete }: QuizFlowProps) {
   const navigate = useNavigate();
   const { answerQuestion, completeAssessment } = useAssessmentStore();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -46,7 +51,7 @@ export function QuizFlow({ interests, onQuizComplete }: { interests: string[]; o
     setSelectedAnswer(answer);
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!selectedAnswer || !currentQuestion) return;
 
     // Convert answer to number (assuming scale of 1-5)
@@ -64,8 +69,11 @@ export function QuizFlow({ interests, onQuizComplete }: { interests: string[]; o
       setSelectedAnswer("");
     } else {
       // Quiz complete
-      completeAssessment();
-      onQuizComplete();
+      await completeAssessment();
+      const formattedAnswers = Object.fromEntries(
+        Object.entries(newAnswers).map(([id, value]) => [id, value.toString()])
+      );
+      onQuizComplete(formattedAnswers);
     }
   };
 

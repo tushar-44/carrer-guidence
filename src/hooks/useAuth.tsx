@@ -23,6 +23,8 @@ interface AuthContextType {
   profile: UserProfile | null
   loading: boolean
   signInWithGoogle: () => Promise<void>
+  signIn: (data: { email: string; password: string }) => Promise<{ error: any }>
+  signUp: (data: { email: string; password: string; firstName: string; lastName: string }) => Promise<{ error: any }>
   signOut: () => Promise<void>
 }
 
@@ -119,6 +121,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (error) throw error
   }
 
+  const signIn = async (data: { email: string; password: string }) => {
+    const { error } = await supabase.auth.signInWithPassword(data)
+    return { error }
+  }
+
+  const signUp = async (data: { email: string; password: string; firstName: string; lastName: string }) => {
+    const { error } = await supabase.auth.signUp({
+      email: data.email,
+      password: data.password,
+      options: {
+        data: {
+          full_name: `${data.firstName} ${data.lastName}`,
+        },
+      },
+    })
+    return { error }
+  }
+
   const signOut = async () => {
     const { error } = await supabase.auth.signOut()
     if (error) throw error
@@ -130,6 +150,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     profile,
     loading,
     signInWithGoogle,
+    signIn,
+    signUp,
     signOut,
   }
 

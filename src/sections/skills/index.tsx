@@ -33,7 +33,7 @@ export function Jobs() {
     const fetchJobs = async () => {
       try {
         setLoading(true);
-        // Try to fetch from Supabase first
+        // First try to fetch from Supabase
         const { data, error } = await supabase
           .from('jobs')
           .select('*');
@@ -46,9 +46,19 @@ export function Jobs() {
           const uniqueDomains = Array.from(new Set(jobs.map((job) => job.domain)));
           setDomains(uniqueDomains);
         } else {
-          setJobsData(data as Job[] || []);
-          const uniqueDomains = Array.from(new Set(data?.map((job) => job.domain) || []));
-          setDomains(uniqueDomains);
+          // If we have data from Supabase, use it
+          if (data && data.length > 0) {
+            setJobsData(data as Job[]);
+            const uniqueDomains = Array.from(new Set(data.map((job) => job.domain)));
+            setDomains(uniqueDomains);
+          } else {
+            // If Supabase is empty, use local data
+            console.warn('Supabase jobs table is empty, using local data');
+            const { jobs } = await import('@/data/jobs');
+            setJobsData(jobs);
+            const uniqueDomains = Array.from(new Set(jobs.map((job) => job.domain)));
+            setDomains(uniqueDomains);
+          }
         }
       } catch (err) {
         console.error('Error fetching jobs:', err);
@@ -69,7 +79,6 @@ export function Jobs() {
 
     fetchJobs();
   }, []);
-
   useEffect(() => {
     const ctx = gsap.context(() => {
       // Animate title

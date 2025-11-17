@@ -26,7 +26,7 @@ export function InterestSelector({ onInterestsSelected }: InterestSelectorProps)
   // const { data: session } = useSession(); // TODO: Add NextAuth later
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [_hasStarted, setHasStarted] = useState(false);
+  // const [_hasStarted, setHasStarted] = useState(false);
 
   // Check for existing interests from user profile
   // useEffect(() => {
@@ -130,7 +130,7 @@ export function InterestSelector({ onInterestsSelected }: InterestSelectorProps)
         <div className="text-center space-y-4">
           <Button
             size="lg"
-            onClick={() => setHasStarted(true)}
+            onClick={handleContinue}
             disabled={selectedInterests.length === 0}
           >
             Start Assessment

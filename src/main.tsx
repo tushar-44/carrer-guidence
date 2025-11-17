@@ -10,6 +10,11 @@ if (!rootElement) {
   throw new Error("Root element not found!");
 }
 
+// Scroll to top on page load/refresh
+window.addEventListener('load', () => {
+  window.scrollTo(0, 0);
+});
+
 const root = createRoot(rootElement);
 root.render(
   <BrowserRouter>

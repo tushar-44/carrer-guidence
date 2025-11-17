@@ -14,6 +14,11 @@ const dynamicRoutes = [
 
 // https://vite.dev/config/
 export default defineConfig({
+  server: {
+    host: '0.0.0.0', // Listen on all network interfaces
+    port: 5173,
+    strictPort: false, // Try next available port if 5173 is taken
+  },
   plugins: [
     react(),
     tailwindcss(),

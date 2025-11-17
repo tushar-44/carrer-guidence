@@ -3,6 +3,12 @@ import { createClient, type Session } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co'
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-key'
 
+export const isSupabaseConfigured =
+  !!import.meta.env.VITE_SUPABASE_URL &&
+  !!import.meta.env.VITE_SUPABASE_ANON_KEY &&
+  !supabaseUrl.includes('placeholder') &&
+  !supabaseAnonKey.includes('placeholder')
+
 if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Missing Supabase environment variables, using placeholder values')
 }

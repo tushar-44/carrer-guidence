@@ -5,9 +5,7 @@ import { services } from "./constants";
 import { useHorizontalScroll } from "./useHorizontalScroll";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { motion, AnimatePresence } from "framer-motion";
-import { useDrawerStore } from "@/stores/drawerStore";
-import { useState } from "react";
-import { BookingModal } from "@/components/booking/BookingModal";
+import { useNavigate } from "react-router-dom";
 
 export function Services() {
   const {
@@ -18,12 +16,10 @@ export function Services() {
     scrollProgress,
     isScrolling
   } = useHorizontalScroll();
-  const { open: openDrawer } = useDrawerStore();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleRequestServiceClick = () => {
-    console.log('🎯 Opening booking modal from services section');
-    setIsModalOpen(true);
+    navigate('/mentors');
   };
 
   return (
@@ -100,19 +96,6 @@ export function Services() {
         />
       </div>
 
-      {/* Booking Modal */}
-      <BookingModal
-        mentor={{
-          id: "general",
-          name: "CareerPath Team",
-          title: "Career Guidance Experts",
-          avatar: "/careerpath-logo.svg",
-          hourlyRate: 0
-        }}
-        trigger={<div />}
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
-      />
     </div>
   );
 }

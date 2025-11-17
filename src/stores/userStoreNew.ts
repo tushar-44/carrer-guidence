@@ -88,3 +88,4 @@ export const useIsMentor = () => {
 export const useIsCompany = () => {
   const userType = useUserType();
   return userType === 'company';
+};

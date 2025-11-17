@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { assessmentsService } from '@/lib/supabase-services';
+import { supabase } from '@/lib/supabase';
 import type {
   AssessmentCategory,
   CareerRecommendation,
@@ -44,7 +46,7 @@ interface AssessmentActions {
   answerQuestion: (questionId: string, category: AssessmentCategory, answer: number) => void;
   nextQuestion: () => void;
   previousQuestion: () => void;
-  completeAssessment: () => void;
+  completeAssessment: () => Promise<void>;
   resetAssessment: () => void;
   setLoading: (loading: boolean) => void;
   getCurrentResult: () => AssessmentResult | null;
@@ -262,18 +264,24 @@ export const useAssessmentStore = create<AssessmentStore>()(
         }
       },
 
-      completeAssessment: () => {
+      completeAssessment: async () => {
         const currentAssessment = get().currentAssessment;
+        set({ isLoading: true });
 
-        // Calculate scores for each category
         const categories = ['aptitude', 'interests', 'personality', 'emotional-intelligence', 'skills-readiness'] as AssessmentCategory[];
         const categoryScores: Record<AssessmentCategory, { score: number; maxScore: number; percentage: number }> = {} as Record<AssessmentCategory, { score: number; maxScore: number; percentage: number }>;
+
+        let totalScore = 0;
+        let totalMaxScore = 0;
 
         categories.forEach(category => {
           const categoryAnswers = currentAssessment.answers.filter(a => a.category === category);
           const score = categoryAnswers.reduce((sum, answer) => sum + answer.answer, 0);
           const maxScore = mockQuestions[category].length * 5;
           const percentage = Math.round((score / maxScore) * 100);
+
+          totalScore += score;
+          totalMaxScore += maxScore;
 
           categoryScores[category] = {
             score,
@@ -282,9 +290,11 @@ export const useAssessmentStore = create<AssessmentStore>()(
           };
         });
 
-        const result: AssessmentResult = {
+        const overallPercentage = totalMaxScore > 0 ? Math.round((totalScore / totalMaxScore) * 100) : 0;
+
+        let finalResult: AssessmentResult = {
           id: Date.now().toString(),
-          userId: 'current-user', // In real app, get from user store
+          userId: 'local-user',
           completedAt: new Date(),
           categories: categoryScores,
           recommendations: mockRecommendations,
@@ -292,13 +302,113 @@ export const useAssessmentStore = create<AssessmentStore>()(
           roadmap: mockRoadmap
         };
 
-        set({
-          currentAssessment: {
-            ...currentAssessment,
-            isCompleted: true
-          },
-          results: [...get().results, result]
-        });
+        try {
+          // Get current user
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            throw new Error('User not authenticated');
+          }
+
+          // Get or create a default assessment
+          let assessmentId: string;
+          const { data: existingAssessments } = await assessmentsService.getAll();
+          const defaultAssessment = existingAssessments?.find((a: any) => a.category === 'general' || a.title === 'Career Assessment');
+          
+          if (defaultAssessment) {
+            assessmentId = defaultAssessment.id;
+          } else {
+            // Create a default assessment if none exists
+            const { data: newAssessment, error: createError } = await supabase
+              .from('assessments')
+              .insert({
+                title: 'Career Assessment',
+                description: 'Comprehensive career assessment',
+                category: 'general',
+                total_questions: currentAssessment.answers.length,
+              })
+              .select()
+              .single();
+
+            if (createError || !newAssessment) {
+              console.warn('Could not create assessment, using fallback');
+              assessmentId = 'default-assessment-id';
+            } else {
+              assessmentId = newAssessment.id;
+            }
+          }
+
+          // Save results to database
+          const { data: savedResult, error: saveError } = await assessmentsService.submitResults(
+            user.id,
+            assessmentId,
+            {
+              score: totalScore,
+              total_points: totalMaxScore,
+              percentage: overallPercentage,
+              answers: currentAssessment.answers.map(a => ({
+                questionId: a.questionId,
+                category: a.category,
+                answer: a.answer,
+                timestamp: a.timestamp
+              }))
+            }
+          );
+
+          if (saveError) {
+            console.error('Error saving assessment results:', saveError);
+            // Continue with local storage even if DB save fails
+          }
+
+          finalResult = {
+            id: savedResult?.id || Date.now().toString(),
+            userId: user.id,
+            completedAt: new Date(),
+            categories: categoryScores,
+            recommendations: mockRecommendations,
+            skillGaps: mockSkillGaps,
+            roadmap: mockRoadmap
+          };
+
+          // Generate AI roadmap if OpenAI is available
+          try {
+            const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            if (session && supabaseUrl) {
+              await fetch(`${supabaseUrl}/functions/v1/ai`, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${session.access_token}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  assessmentData: {
+                    id: savedResult?.id,
+                    score: overallPercentage,
+                    category: 'general'
+                  },
+                  careerGoals: '',
+                  currentSkills: Object.keys(categoryScores).join(', ')
+                }),
+              });
+            }
+          } catch (aiError) {
+            console.warn('AI roadmap generation failed:', aiError);
+            // Non-critical, continue without AI roadmap
+          }
+
+        } catch (error: any) {
+          console.error('Error completing assessment:', error);
+        } finally {
+          set({
+            currentAssessment: {
+              ...currentAssessment,
+              isCompleted: true
+            },
+            results: [...get().results, finalResult],
+            isLoading: false
+          });
+        }
       },
 
       resetAssessment: () => {

@@ -31,10 +31,10 @@ export default function MentorsPage() {
     const fetchMentors = async () => {
       try {
         setLoading(true);
+        // First try to fetch from Supabase
         const { data, error } = await supabase
           .from('mentors')
-          .select('*')
-          .eq('vetting_status', 'Approved');
+          .select('*');
 
         if (error) {
           console.warn('Supabase not available, using local data:', error);
@@ -42,7 +42,15 @@ export default function MentorsPage() {
           const { mentors } = await import('@/data/mentors');
           setMentors(mentors);
         } else {
-          setMentors(data || []);
+          // If we have data from Supabase, use it
+          if (data && data.length > 0) {
+            setMentors(data);
+          } else {
+            // If Supabase is empty, use local data
+            console.warn('Supabase mentors table is empty, using local data');
+            const { mentors } = await import('@/data/mentors');
+            setMentors(mentors);
+          }
         }
       } catch (err) {
         console.error('Error fetching mentors:', err);

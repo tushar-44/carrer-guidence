@@ -56,7 +56,7 @@ export function Assessment() {
   const progress = ((currentStep + 1) / quizSteps.length) * 100;
   const currentQuizStep = quizSteps[currentStep];
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (selectedOption) {
       setAnswers(prev => ({ ...prev, [currentStep]: selectedOption }));
       if (currentStep < quizSteps.length - 1) {
@@ -64,7 +64,7 @@ export function Assessment() {
         setSelectedOption(answers[currentStep + 1] || "");
       } else {
         // Quiz completed - trigger completion
-        completeAssessment();
+        await completeAssessment();
       }
     }
   };

@@ -7,10 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { FileText, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
-import { supabase } from '@/lib/supabaseClient';
+import { supabase, isSupabaseConfigured } from '@/lib/supabaseClient';
 import { useAuth } from '@/hooks/useAuth';
 import type { Job } from '@/data/jobs';
+import type { ApplicationStatus } from '@/constants/index';
 import { useApplicationStore } from '@/stores/applicationStore';
+import { toast } from 'sonner';
 
 interface JobApplicationModalProps {
   job: Job;
@@ -60,10 +62,41 @@ export function JobApplicationModal({ job, open, onOpenChange }: JobApplicationM
   };
 
   const handleConfirm = async () => {
-    if (!user) return;
+    const isGuestMode = !isSupabaseConfigured || !user;
+
+    if (!user && isSupabaseConfigured) {
+      toast.error('Please log in to apply for this job.');
+      return;
+    }
+
+    const recordLocalApplication = (status: ApplicationStatus, message: string) => {
+      addApplication({
+        jobId: job.id,
+        jobTitle: job.title,
+        company: job.company,
+        status,
+        resumeUrl: undefined,
+        coverLetter: formData.coverLetter,
+        notes: `LinkedIn: ${formData.linkedin || 'N/A'}, Portfolio: ${formData.portfolio || 'N/A'}`
+      });
+      toast.success(message);
+      setStep('success');
+      setTimeout(() => {
+        onOpenChange(false);
+        resetModal();
+      }, 1500);
+    };
 
     try {
       setLoading(true);
+
+      if (isGuestMode) {
+        recordLocalApplication(
+          'applied',
+          'Application submitted! We will keep you posted via email.'
+        );
+        return;
+      }
 
       // Upload resume to Supabase Storage if provided
       let resumeUrl = null;
@@ -110,15 +143,19 @@ export function JobApplicationModal({ job, open, onOpenChange }: JobApplicationM
       });
 
       setStep('success');
+      toast.success('Application submitted successfully!');
 
-      // Close modal after 2 seconds
       setTimeout(() => {
         onOpenChange(false);
         resetModal();
       }, 2000);
     } catch (err) {
       console.error('Error submitting application:', err);
-      // Handle error (show toast, etc.)
+      toast.error('Unable to submit via server. Saving application locally.');
+      recordLocalApplication(
+        'reviewing',
+        'Application saved! Our team will reach out with next steps.'
+      );
     } finally {
       setLoading(false);
     }

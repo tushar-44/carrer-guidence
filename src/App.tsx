@@ -3,12 +3,12 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { GlobalDrawer } from "@/components/drawer/global-drawer";
 import { SvgFilters } from "@/components/ui/svg-filters";
 import { Toaster } from "@/components/ui/toast";
-import { AuthProvider } from "@/components/auth/AuthProvider";
+import { AuthProvider } from "@/hooks/useAuth";
 import { Layout } from "@/components/Layout";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { useUserStore } from "@/stores/userStore";
-import LoginPage from "@/pages/LoginPage";
-import RegisterPage from "@/pages/RegisterPage";
+import LoginPage from "@/app/auth/login/page";
+import RegisterPage from "@/app/auth/register/page";
 import { Home } from "@/sections/home/index-new";
 import { MobileHomePage } from "@/pages/MobileHomePage";
 import MentorsPage from "@/pages/MentorsPage";
@@ -22,7 +22,7 @@ import { ProfilePage } from "@/pages/ProfilePage";
 import { CaseStudyDetailPage } from "@/pages/CaseStudyDetailPage";
 import { PrivacyPolicyPage } from "@/pages/PrivacyPolicyPage";
 import { AdminPanelPage } from "@/pages/AdminPanelPage";
-import { OnboardingPage } from "@/pages/OnboardingPage";
+import OnboardingPage from "@/pages/OnboardingPage";
 import CareerRoadmapPage from "@/app/(main)/career-roadmap/page";
 import { SmoothScrollProvider } from "@/components/providers/smooth-scroll-provider";
 
@@ -111,8 +111,8 @@ export default function App() {
           isDesktop ? <DesktopApp /> : <MobileApp />
         ) : (
           <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/auth/login" element={<LoginPage />} />
+            <Route path="/auth/register" element={<RegisterPage />} />
             <Route path="/*" element={<PublicRoutes />} />
           </Routes>
         )}

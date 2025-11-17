@@ -45,7 +45,7 @@ export default function AssessmentPage() {
               <InterestSelector onInterestsSelected={handleInterestsSelected} />
             )}
             {stage === "quiz" && (
-              <QuizFlow interests={selectedInterests} onQuizComplete={() => handleQuizComplete(assessmentAnswers)} />
+              <QuizFlow interests={selectedInterests} onQuizComplete={handleQuizComplete} />
             )}
             {stage === "results" && (
               <AssessmentResults answers={assessmentAnswers} interests={selectedInterests} />
