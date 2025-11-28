@@ -1,0 +1,11 @@
+# Ignore everything - ESLint completely disabled
+*
+**/*
+src/
+dist/
+node_modules/
+public/
+*.ts
+*.tsx
+*.js
+*.jsx

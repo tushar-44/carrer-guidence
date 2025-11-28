@@ -25,7 +25,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>
   signIn: (data: { email: string; password: string }) => Promise<{ error: any }>
   signUp: (data: { email: string; password: string; firstName: string; lastName: string }) => Promise<{ error: any }>
-  signOut: () => Promise<void>
+  signOut: () => Promise<{ error: any }>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)

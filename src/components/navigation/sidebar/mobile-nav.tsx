@@ -40,10 +40,10 @@ export function MobileNav({ onNavigationClick }: MobileNavProps) {
     onNavigationClick(); // Close sidebar immediately
     
     try {
-      const result = await signOut();
+      const { error } = await signOut();
       
-      if (result?.error) {
-        console.error('Sign out error:', result.error);
+      if (error) {
+        console.error('Sign out error:', error);
         toast.error('Failed to sign out. Please try again.');
         setIsSigningOut(false);
         return;
