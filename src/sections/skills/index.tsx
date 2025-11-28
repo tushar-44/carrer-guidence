@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Search, Briefcase, MapPin, Loader2 } from "lucide-react";
-import { supabase } from '@/lib/supabaseClient';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import type { Job } from '@/data/jobs';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -33,32 +33,46 @@ export function Jobs() {
     const fetchJobs = async () => {
       try {
         setLoading(true);
-        // First try to fetch from Supabase
+        const loadLocalJobs = async (reason?: string) => {
+          if (reason) {
+            console.warn(reason);
+          }
+          const { jobs } = await import('@/data/jobs');
+          setJobsData(jobs);
+          const uniqueDomains = Array.from(new Set(jobs.map((job) => job.domain)));
+          setDomains(uniqueDomains);
+        };
+
+        if (!isSupabaseConfigured) {
+          await loadLocalJobs('Supabase not configured, using bundled jobs.');
+          return;
+        }
+
         const { data, error } = await supabase
           .from('jobs')
           .select('*');
 
         if (error) {
-          console.warn('Supabase not available, using local data:', error);
-          // Fallback to local data
-          const { jobs } = await import('@/data/jobs');
-          setJobsData(jobs);
-          const uniqueDomains = Array.from(new Set(jobs.map((job) => job.domain)));
+          await loadLocalJobs(`Supabase error: ${error.message}`);
+        } else if (data && data.length > 0) {
+          // Validate and sanitize data from Supabase
+          const validatedJobs = data.map(job => ({
+            ...job,
+            skills: Array.isArray(job.skills) ? job.skills : [],
+            postedDate: job.postedDate || 'Recently posted',
+            title: job.title || 'Untitled Position',
+            company: job.company || 'Unknown Company',
+            location: job.location || 'Location TBD',
+            salary: job.salary || 'Salary TBD',
+            type: job.type || 'full-time',
+            description: job.description || 'No description available'
+          })) as Job[];
+          
+          setJobsData(validatedJobs);
+          const uniqueDomains = Array.from(new Set(validatedJobs.map((job) => job.domain).filter(Boolean)));
           setDomains(uniqueDomains);
         } else {
-          // If we have data from Supabase, use it
-          if (data && data.length > 0) {
-            setJobsData(data as Job[]);
-            const uniqueDomains = Array.from(new Set(data.map((job) => job.domain)));
-            setDomains(uniqueDomains);
-          } else {
-            // If Supabase is empty, use local data
-            console.warn('Supabase jobs table is empty, using local data');
-            const { jobs } = await import('@/data/jobs');
-            setJobsData(jobs);
-            const uniqueDomains = Array.from(new Set(jobs.map((job) => job.domain)));
-            setDomains(uniqueDomains);
-          }
+          await loadLocalJobs('Supabase jobs table empty, using bundled data.');
         }
       } catch (err) {
         console.error('Error fetching jobs:', err);
@@ -80,60 +94,71 @@ export function Jobs() {
     fetchJobs();
   }, []);
   useEffect(() => {
+    // Only run animations after data is loaded and refs are set
+    if (loading || !titleRef.current || !filtersRef.current || !cardsRef.current) {
+      return;
+    }
+
     const ctx = gsap.context(() => {
-      // Animate title
-      gsap.fromTo(titleRef.current,
-        { opacity: 0, y: 30 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: titleRef.current,
-            start: "top 80%",
-            toggleActions: "play none none reverse"
+      // Animate title - with null check
+      if (titleRef.current) {
+        gsap.fromTo(titleRef.current,
+          { opacity: 0, y: 30 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: titleRef.current,
+              start: "top 80%",
+              toggleActions: "play none none reverse"
+            }
           }
-        }
-      );
+        );
+      }
 
-      // Animate filters
-      gsap.fromTo(filtersRef.current,
-        { opacity: 0, y: 20 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: filtersRef.current,
-            start: "top 80%",
-            toggleActions: "play none none reverse"
+      // Animate filters - with null check
+      if (filtersRef.current) {
+        gsap.fromTo(filtersRef.current,
+          { opacity: 0, y: 20 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: filtersRef.current,
+              start: "top 80%",
+              toggleActions: "play none none reverse"
+            }
           }
-        }
-      );
+        );
+      }
 
-      // Animate job cards
-      gsap.fromTo(cardsRef.current?.children || [],
-        { opacity: 0, y: 50, scale: 0.95 },
-        {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 0.8,
-          stagger: 0.1,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: cardsRef.current,
-            start: "top 80%",
-            toggleActions: "play none none reverse"
+      // Animate job cards - with null check and children validation
+      if (cardsRef.current && cardsRef.current.children.length > 0) {
+        gsap.fromTo(Array.from(cardsRef.current.children),
+          { opacity: 0, y: 50, scale: 0.95 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.8,
+            stagger: 0.1,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: cardsRef.current,
+              start: "top 80%",
+              toggleActions: "play none none reverse"
+            }
           }
-        }
-      );
+        );
+      }
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [loading, jobsData]);
 
   return (
     <section
@@ -186,7 +211,8 @@ export function Jobs() {
                   <SelectValue placeholder="Select a stream" />
                 </SelectTrigger>
                 <SelectContent>
-                  {["All Domains", ...domains].map((stream) => (
+                  <SelectItem value="All Streams">All Streams</SelectItem>
+                  {domains.map((stream) => (
                     <SelectItem key={stream} value={stream}>
                       {stream}
                     </SelectItem>
@@ -245,9 +271,33 @@ export function Jobs() {
         {/* Jobs Grid */}
         {!loading && !error && (
           <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            {jobsData.map((job, index) => (
-              <JobCard key={index} {...job} />
-            ))}
+            {jobsData
+              .filter((job) => {
+                const matchesStream = selectedStream === "All Streams" || job.domain === selectedStream;
+                const matchesSearch = searchQuery === "" || 
+                  job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  job.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  job.domain.toLowerCase().includes(searchQuery.toLowerCase());
+                return matchesStream && matchesSearch;
+              })
+              .map((job, index) => (
+                <JobCard key={index} {...job} />
+              ))}
+          </div>
+        )}
+
+        {/* No Results Message */}
+        {!loading && !error && jobsData.filter((job) => {
+          const matchesStream = selectedStream === "All Streams" || job.domain === selectedStream;
+          const matchesSearch = searchQuery === "" || 
+            job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            job.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            job.domain.toLowerCase().includes(searchQuery.toLowerCase());
+          return matchesStream && matchesSearch;
+        }).length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-600 text-lg">No jobs found matching your criteria.</p>
+            <p className="text-gray-500 text-sm mt-2">Try adjusting your filters or search query.</p>
           </div>
         )}
 

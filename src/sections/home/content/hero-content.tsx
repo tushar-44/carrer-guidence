@@ -81,7 +81,7 @@ export function HeroContent() {
           ref={titleRef}
           className="font-heading text-4xl md:text-6xl lg:text-7xl text-black mb-6 leading-tight"
         >
-          Find Your Perfect Career Path with Real-Time Guidance
+          Find Your Perfect<br />Career Path<br />with Real-Time Guidance
         </h1>
         <p
           ref={subtitleRef}

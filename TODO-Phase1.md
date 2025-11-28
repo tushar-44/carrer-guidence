@@ -1,5 +1,7 @@
 # CareerPath Phase-1 Implementation TODO
 
+> **Status:** Archived. Tasks have been merged into the consolidated backlog (`PROJECT_TASK_STATUS.md`). Keep this file for historical context only.
+
 ## ✅ Phase-1: Core User Journey & Assessment System
 
 ### 1. Role-Based User Journey

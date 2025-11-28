@@ -16,14 +16,14 @@ interface JobCardProps {
 }
 
 export function JobCard({
-  title,
-  company,
-  location,
-  salary,
-  type,
-  description,
-  skills,
-  postedDate
+  title = "Untitled Position",
+  company = "Unknown Company",
+  location = "Location TBD",
+  salary = "Salary TBD",
+  type = "full-time",
+  description = "No description available",
+  skills = [],
+  postedDate = "Recently posted"
 }: JobCardProps) {
   const [isSaved, setIsSaved] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -39,7 +39,7 @@ export function JobCard({
       
       <Card className="relative h-full bg-card/80 backdrop-blur-md border-border/50 overflow-hidden transition-all duration-300 group-hover:shadow-2xl">
         {/* Trending badge */}
-        {postedDate.includes("day") && (
+        {postedDate && postedDate.includes("day") && (
           <div className="absolute top-3 left-3 z-10">
             <div className="flex items-center gap-1 bg-accent-orange/20 text-accent-orange px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
               <TrendingUp className="w-3 h-3" />
@@ -103,7 +103,7 @@ export function JobCard({
 
           {/* Skills with animated appearance */}
           <div className="flex flex-wrap gap-1.5">
-            {skills.slice(0, 4).map((skill, index) => (
+            {skills && skills.length > 0 && skills.slice(0, 4).map((skill, index) => (
               <Badge 
                 key={skill} 
                 variant="secondary" 

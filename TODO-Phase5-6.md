@@ -1,5 +1,7 @@
 # CareerPath Phase 5-6 Implementation TODO
 
+> **Status:** Archived. Phase 5-6 items now live in `PROJECT_TASK_STATUS.md` under sections 4-7. This file remains as historical notes.
+
 ## Phase 5: Dashboard & Analytics Enhancement
 
 ### 5.1 Dashboard Personalization

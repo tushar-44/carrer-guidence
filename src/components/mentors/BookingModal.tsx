@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useBookingStore } from '@/stores/bookingStore';
 import { Calendar as CalendarIcon, Clock, CheckCircle, Loader2, CreditCard } from 'lucide-react';
-import { supabase, isSupabaseConfigured } from '@/lib/supabaseClient';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { processBookingPayment } from '@/lib/payments/razorpay';

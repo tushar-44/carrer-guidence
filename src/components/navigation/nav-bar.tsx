@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { navigationItems } from "@/constants/index";
+import { toast } from "sonner";
+import { navigationItems, roleBasedNavigation } from "@/constants/index";
 import { Tab } from "./tab";
 import { Cursor } from "./cursor";
 import { Sidebar } from "./sidebar/sidebar";
@@ -7,7 +8,8 @@ import { useNavigationStore } from "@/stores/navigationStore";
 import { useUserStore } from "@/stores/userStore";
 import { RoleSelectionModal } from "@/components/auth/RoleSelectionModal";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import type { Position } from "./types";
 
 export function NavBar() {
@@ -21,37 +23,71 @@ export function NavBar() {
 
   // Get active navigation item using optimized selector
   const activeNavigationItem = useNavigationStore(state => state.getActiveNavigationItem());
-  const { isAuthenticated, currentUser } = useUserStore();
+  const { isAuthenticated, currentUser, logout } = useUserStore();
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
 
   // Use actual authentication status
   const isLoggedIn = isAuthenticated;
 
-  // Role-based navigation filtering
-  const getFilteredNavigationItems = () => {
-    let items = navigationItems.filter(item => {
-      if (item.name === "Dashboard" && !isLoggedIn) return false;
-      if (item.name === "Admin Panel" && currentUser?.type !== 'mentor') return false; // Only mentors can access admin panel
-      if (item.name === "Login" && isLoggedIn) return false; // Hide login when logged in
-      return true;
-    });
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
-    // Role-specific filtering based on new user types
-    if (currentUser?.type === 'mentor') {
-      items = items.filter(item => item.name !== 'Jobs'); // Mentors don't need jobs
-    } else if (currentUser?.type === 'company') {
-      // Companies might want to emphasize jobs and mentors
-      items = items.filter(item => item.name !== 'Assessment'); // Companies don't need assessments
-    } else if (currentUser?.type === 'graduates') {
-      // Graduates get full access to all features
+  const handleSignOut = async () => {
+    if (isSigningOut) return;
+    
+    setIsSigningOut(true);
+    try {
+      const result = await signOut();
+      
+      if (result?.error) {
+        console.error('Sign out error:', result.error);
+        toast.error('Failed to sign out. Please try again.');
+        setIsSigningOut(false);
+        return;
+      }
+      
+      // Clear user store
+      logout();
+      
+      // Navigate to home
+      navigate('/');
+      
+      // Show success message
+      toast.success('Signed out successfully');
+    } catch (error) {
+      console.error('Unexpected error signing out:', error);
+      toast.error('An unexpected error occurred. Please try again.');
+      setIsSigningOut(false);
     }
-
-    // Remove Login from navigation items since we have auth buttons
-    items = items.filter(item => item.name !== 'Login');
-
-    return items;
   };
 
-  const filteredNavigationItems = getFilteredNavigationItems();
+  // Get role-based navigation items
+  const getRoleBasedNavigationItems = () => {
+    if (!isLoggedIn || !currentUser?.type) {
+      // Show default navigation for non-logged in users (exclude Dashboard, Admin Panel, Login)
+      return navigationItems.filter(item =>
+        item.name !== 'Dashboard' && 
+        item.name !== 'Admin Panel' &&
+        item.name !== 'Login'
+      );
+    }
+
+    // Return role-specific navigation for logged-in users
+    const roleNav = roleBasedNavigation[currentUser.type as keyof typeof roleBasedNavigation];
+    if (roleNav) {
+      // Convert role nav to NavigationItem format
+      return roleNav.map(item => ({
+        name: item.name,
+        link: item.link,
+        mobileLink: item.link
+      }));
+    }
+    
+    // Fallback: show navigation without Login
+    return navigationItems.filter(item => item.name !== 'Login');
+  };
+
+  const navigationItemsToShow = getRoleBasedNavigationItems();
 
   return (
     <>
@@ -67,7 +103,7 @@ export function NavBar() {
             }}
             className="flex items-center justify-center gap-1 relative"
           >
-          {filteredNavigationItems.map((item) => (
+          {navigationItemsToShow.map((item) => (
             <Tab
               key={item.name}
               setPosition={setPosition}
@@ -82,14 +118,14 @@ export function NavBar() {
           {!isLoggedIn ? (
             <>
               <li className="ml-4">
-                <Link to="/login">
+                <Link to="/auth/login">
                   <Button variant="ghost" size="sm">
                     Login
                   </Button>
                 </Link>
               </li>
               <li className="ml-2">
-                <Link to="/register">
+                <Link to="/auth/register">
                   <Button size="sm">
                     Sign Up
                   </Button>
@@ -101,9 +137,10 @@ export function NavBar() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => {}}
+                onClick={handleSignOut}
+                disabled={isSigningOut}
               >
-                Sign Out
+                {isSigningOut ? 'Signing out...' : 'Sign Out'}
               </Button>
             </li>
           )}

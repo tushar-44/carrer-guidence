@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { assessmentsService } from '@/lib/supabase-services';
 import { supabase } from '@/lib/supabase';
 import type {
   AssessmentCategory,
@@ -309,93 +308,61 @@ export const useAssessmentStore = create<AssessmentStore>()(
             throw new Error('User not authenticated');
           }
 
-          // Get or create a default assessment
-          let assessmentId: string;
-          const { data: existingAssessments } = await assessmentsService.getAll();
-          const defaultAssessment = existingAssessments?.find((a: any) => a.category === 'general' || a.title === 'Career Assessment');
-          
-          if (defaultAssessment) {
-            assessmentId = defaultAssessment.id;
-          } else {
-            // Create a default assessment if none exists
-            const { data: newAssessment, error: createError } = await supabase
-              .from('assessments')
-              .insert({
-                title: 'Career Assessment',
-                description: 'Comprehensive career assessment',
-                category: 'general',
-                total_questions: currentAssessment.answers.length,
-              })
-              .select()
-              .single();
-
-            if (createError || !newAssessment) {
-              console.warn('Could not create assessment, using fallback');
-              assessmentId = 'default-assessment-id';
-            } else {
-              assessmentId = newAssessment.id;
-            }
-          }
-
-          // Save results to database
-          const { data: savedResult, error: saveError } = await assessmentsService.submitResults(
-            user.id,
-            assessmentId,
-            {
+          // Save to assessment_results table directly
+          const { data: savedResult, error: saveError } = await supabase
+            .from('assessment_results')
+            .insert({
+              user_id: user.id,
+              skills: categoryScores,
+              interests: categoryScores.interests || {},
+              personality_traits: categoryScores.personality || {},
+              answers: currentAssessment.answers,
               score: totalScore,
               total_points: totalMaxScore,
               percentage: overallPercentage,
-              answers: currentAssessment.answers.map(a => ({
-                questionId: a.questionId,
-                category: a.category,
-                answer: a.answer,
-                timestamp: a.timestamp
-              }))
-            }
-          );
+            })
+            .select()
+            .single();
 
           if (saveError) {
             console.error('Error saving assessment results:', saveError);
-            // Continue with local storage even if DB save fails
           }
 
-          finalResult = {
-            id: savedResult?.id || Date.now().toString(),
-            userId: user.id,
-            completedAt: new Date(),
-            categories: categoryScores,
-            recommendations: mockRecommendations,
-            skillGaps: mockSkillGaps,
-            roadmap: mockRoadmap
-          };
-
-          // Generate AI roadmap if OpenAI is available
+          // Generate AI analysis
           try {
-            const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-            const { data: { session } } = await supabase.auth.getSession();
+            const { analyzeCareerPath } = await import('@/lib/ai/careerAnalysis');
+            const aiResult = await analyzeCareerPath({ categories: categoryScores, answers: currentAssessment.answers });
             
-            if (session && supabaseUrl) {
-              await fetch(`${supabaseUrl}/functions/v1/ai`, {
-                method: 'POST',
-                headers: {
-                  'Authorization': `Bearer ${session.access_token}`,
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  assessmentData: {
-                    id: savedResult?.id,
-                    score: overallPercentage,
-                    category: 'general'
-                  },
-                  careerGoals: '',
-                  currentSkills: Object.keys(categoryScores).join(', ')
-                }),
-              });
+            // Update with AI recommendations
+            if (savedResult && aiResult) {
+              await supabase
+                .from('assessment_results')
+                .update({
+                  career_recommendations: aiResult.recommendations,
+                  skill_gaps: aiResult.skillGaps,
+                  ai_analysis: aiResult.aiInsights,
+                })
+                .eq('id', savedResult.id);
+
+              finalResult = {
+                id: savedResult.id,
+                userId: user.id,
+                completedAt: new Date(savedResult.completed_at),
+                categories: categoryScores,
+                recommendations: aiResult.recommendations.map((r: any) => ({
+                  ...r,
+                  icon: r.title.includes('Software') ? '💻' : r.title.includes('Data') ? '📊' : '🎨'
+                })),
+                skillGaps: aiResult.skillGaps,
+                roadmap: mockRoadmap
+              };
             }
           } catch (aiError) {
-            console.warn('AI roadmap generation failed:', aiError);
-            // Non-critical, continue without AI roadmap
+            console.warn('AI analysis failed, using fallback:', aiError);
           }
+
+          finalResult.id = savedResult?.id || finalResult.id;
+          finalResult.userId = user.id;
 
         } catch (error: any) {
           console.error('Error completing assessment:', error);

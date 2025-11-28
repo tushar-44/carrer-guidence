@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { SimpleTextCard } from '../../sections/about-me/simple-text-card';
 import { FeatureCard } from '../../sections/about-me/feature-card';
 import { TrendingUp } from 'lucide-react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 // Import SVG assets
 import zapIcon from '../../assets/zapIcon.svg';
@@ -17,33 +19,106 @@ import { LearningHoursCard } from './LearningHoursCard';
 import { AssessmentsCompletedCard } from './AssessmentsCompletedCard';
 import { SkillsMasteredCard } from './SkillsMasteredCard';
 
+gsap.registerPlugin(ScrollTrigger);
+
 export function EnhancedDashboard() {
   const [isLargeScreen, setIsLargeScreen] = useState(true);
+  const sectionRef = useRef<HTMLElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const checkScreenSize = () => {
       setIsLargeScreen(window.innerWidth >= 1381);
     };
 
-    // Check initial size
     checkScreenSize();
-
-    // Add resize listener
     window.addEventListener('resize', checkScreenSize);
 
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
+  // GSAP Animations for Dashboard
+  useEffect(() => {
+    if (!sectionRef.current) return;
+
+    const ctx = gsap.context(() => {
+      // Title animation
+      if (titleRef.current) {
+        gsap.fromTo(titleRef.current.children,
+          {
+            opacity: 0,
+            y: 30
+          },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            stagger: 0.1,
+            ease: "power2.out"
+          }
+        );
+      }
+
+      // Animate dashboard cards with stagger
+      const cards = sectionRef.current.querySelectorAll('.dashboard-card');
+      gsap.fromTo(cards,
+        {
+          opacity: 0,
+          y: 50,
+          scale: 0.95,
+          rotationX: -10
+        },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          rotationX: 0,
+          duration: 0.8,
+          stagger: 0.1,
+          ease: "back.out(1.2)",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top 80%",
+            toggleActions: "play none none none"
+          }
+        }
+      );
+
+      // Add hover animations
+      cards.forEach((card) => {
+        card.addEventListener('mouseenter', () => {
+          gsap.to(card, {
+            scale: 1.02,
+            y: -5,
+            duration: 0.3,
+            ease: "power2.out"
+          });
+        });
+        card.addEventListener('mouseleave', () => {
+          gsap.to(card, {
+            scale: 1,
+            y: 0,
+            duration: 0.3,
+            ease: "power2.out"
+          });
+        });
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, [isLargeScreen]);
+
   if (isLargeScreen) {
     // Original 5x6 bento grid layout for screens >= 1381px
     return (
       <section
+        ref={sectionRef}
         id="dashboard"
         className="py-20 px-6 md:px-12 lg:px-16"
       >
         <div className="w-full max-w-7xl mx-auto">
           {/* Section Title */}
-          <div className="text-center mb-16">
+          <div ref={titleRef} className="text-center mb-16">
             <h2 className="font-body text-lg font-light text-foreground mb-4">
               STUDENT DASHBOARD
             </h2>
@@ -58,24 +133,32 @@ export function EnhancedDashboard() {
           <div className="grid grid-cols-5 gap-4">
 
             {/* Column 1, Row 1 - Profile Summary */}
-            <ProfileSummary />
+            <div className="dashboard-card">
+              <ProfileSummary />
+            </div>
 
             {/* Column 2, Rows 1-2 - Assessments Completed */}
-            <AssessmentsCompletedCard />
+            <div className="dashboard-card">
+              <AssessmentsCompletedCard />
+            </div>
 
             {/* Column 3, Rows 1-2 - Learning Hours */}
-            <LearningHoursCard />
+            <div className="dashboard-card">
+              <LearningHoursCard />
+            </div>
 
             {/* Column 4, Rows 1-2 - Career Goals */}
-            <SkillsMasteredCard />
+            <div className="dashboard-card">
+              <SkillsMasteredCard />
+            </div>
 
             {/* Column 5, Rows 1-3 - Current Goal */}
-            <div className="row-span-3">
+            <div className="row-span-3 dashboard-card">
               <CareerGoalCard />
             </div>
 
             {/* Column 1, Row 2 - Progress Indicator */}
-            <div className="flex items-center justify-center bento-no-min h-36">
+            <div className="flex items-center justify-center bento-no-min h-36 dashboard-card">
               <div className="text-center">
                 <TrendingUp className="w-8 h-8 text-primary mx-auto mb-2" />
                 <p className="font-body text-sm text-muted-foreground">On Track</p>
@@ -83,38 +166,44 @@ export function EnhancedDashboard() {
             </div>
 
             {/* Column 1, Rows 3-6 - Skill Gap Chart */}
-            <div className="row-span-4">
+            <div className="row-span-4 dashboard-card">
               <SkillGapChart />
             </div>
 
             {/* Columns 2-4, Rows 3-5 - Upcoming Sessions */}
-            <div className="col-span-3 row-span-3">
+            <div className="col-span-3 row-span-3 dashboard-card">
               <UpcomingSessions />
             </div>
 
             {/* Column 5, Row 4 - Skill Development */}
-            <FeatureCard
-              icon={zapIcon}
-              text={<>Skill<br/>Development</>}
-              altText="Skill Development"
-              variant="text-left-icon-right"
-            />
+            <div className="dashboard-card">
+              <FeatureCard
+                icon={zapIcon}
+                text={<>Skill<br/>Development</>}
+                altText="Skill Development"
+                variant="text-left-icon-right"
+              />
+            </div>
 
             {/* Column 5, Row 5 - Goal Achievement */}
-            <FeatureCard
-              icon={rocketIcon}
-              text={<>Goal<br/>Achievement</>}
-              altText="Goal Achievement"
-              variant="text-right-icon-left"
-            />
+            <div className="dashboard-card">
+              <FeatureCard
+                icon={rocketIcon}
+                text={<>Goal<br/>Achievement</>}
+                altText="Goal Achievement"
+                variant="text-right-icon-left"
+              />
+            </div>
 
             {/* Columns 2-4, Row 6 - Recommended Courses */}
-            <div className="col-span-3">
+            <div className="col-span-3 dashboard-card">
               <RecommendedCourses />
             </div>
 
             {/* Column 5, Row 6 - Career Milestones */}
-            <SimpleTextCard text="Milestones" />
+            <div className="dashboard-card">
+              <SimpleTextCard text="Milestones" />
+            </div>
 
           </div>
         </div>
@@ -125,12 +214,13 @@ export function EnhancedDashboard() {
   // Compact layout for screens < 1381px
   return (
     <section
+      ref={sectionRef}
       id="dashboard"
       className="py-20 px-6 md:px-12 lg:px-16"
     >
       <div className="w-full max-w-7xl mx-auto">
         {/* Section Title */}
-        <div className="text-center mb-16">
+        <div ref={titleRef} className="text-center mb-16">
           <h2 className="font-body text-lg font-light text-foreground mb-4">
             STUDENT DASHBOARD
           </h2>
@@ -145,18 +235,26 @@ export function EnhancedDashboard() {
 
           {/* Row 1: Achievement Cards */}
           <div className="grid grid-cols-2 gap-4">
-            <AssessmentsCompletedCard />
-            <LearningHoursCard />
+            <div className="dashboard-card">
+              <AssessmentsCompletedCard />
+            </div>
+            <div className="dashboard-card">
+              <LearningHoursCard />
+            </div>
           </div>
 
           {/* Row 2: More Achievement Cards */}
           <div className="grid grid-cols-2 gap-4">
-            <SkillsMasteredCard />
-            <CareerGoalCard />
+            <div className="dashboard-card">
+              <SkillsMasteredCard />
+            </div>
+            <div className="dashboard-card">
+              <CareerGoalCard />
+            </div>
           </div>
 
           {/* Row 3: Profile Summary */}
-          <div className="w-full">
+          <div className="w-full dashboard-card">
             <ProfileSummary />
           </div>
 

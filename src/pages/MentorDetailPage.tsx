@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Calendar, Clock, Star, Briefcase, Award, Users, ArrowLeft } from "lucide-react";
 import { getMentorById } from '@/data/mentors';
-import { BookingModal } from '@/components/mentors/BookingModal';
+import { MentorBookingFlow } from '@/components/mentors/MentorBookingFlow';
 
 export function MentorDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -223,10 +223,17 @@ export function MentorDetailPage() {
         <Footer />
       </div>
       
-      <BookingModal
-        mentor={mentor}
-        open={bookingModalOpen}
-        onOpenChange={setBookingModalOpen}
+      <MentorBookingFlow
+        mentor={{
+          id: mentor.id,
+          user_id: mentor.id, // Using mentor ID as user_id for now
+          full_name: mentor.name,
+          hourly_rate: mentor.hourlyRate,
+          is_near_peer: mentor.mentor_type === 'near-peer' || mentor.hourlyRate === 0,
+          expertise: mentor.expertise
+        }}
+        isOpen={bookingModalOpen}
+        onClose={() => setBookingModalOpen(false)}
       />
     </>
   );

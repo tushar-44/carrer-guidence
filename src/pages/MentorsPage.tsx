@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { SEO } from "@/components/seo/SEO";
-import { supabase } from '@/lib/supabaseClient';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import type { Mentor } from '@/data/mentors';
 import { Search, Star, Clock, CheckCircle, Loader2 } from 'lucide-react';
 
@@ -31,33 +31,47 @@ export default function MentorsPage() {
     const fetchMentors = async () => {
       try {
         setLoading(true);
-        // First try to fetch from Supabase
+        const loadLocalMentors = async (reason?: string) => {
+          if (reason) {
+            console.warn(reason);
+          }
+          const { mentors: localMentors } = await import('@/data/mentors');
+          setMentors(localMentors);
+        };
+
+        if (!isSupabaseConfigured) {
+          await loadLocalMentors('Supabase not configured, using bundled mentors.');
+          return;
+        }
+
         const { data, error } = await supabase
           .from('mentors')
-          .select('*');
+          .select(`
+            *,
+            users (
+              full_name,
+              email,
+              avatar_url
+            )
+          `);
 
         if (error) {
-          console.warn('Supabase not available, using local data:', error);
-          // Fallback to local data
-          const { mentors } = await import('@/data/mentors');
-          setMentors(mentors);
+          await loadLocalMentors(`Supabase error: ${error.message}`);
+        } else if (data && data.length > 0) {
+          // Filter only approved mentors
+          const approvedMentors = data.filter((m: any) => 
+            m.vetting_status?.toLowerCase() === 'approved' || m.verified === true
+          );
+          setMentors(approvedMentors.length > 0 ? approvedMentors : data);
         } else {
-          // If we have data from Supabase, use it
-          if (data && data.length > 0) {
-            setMentors(data);
-          } else {
-            // If Supabase is empty, use local data
-            console.warn('Supabase mentors table is empty, using local data');
-            const { mentors } = await import('@/data/mentors');
-            setMentors(mentors);
-          }
+          await loadLocalMentors('Supabase mentors table empty, falling back to bundled data.');
         }
       } catch (err) {
         console.error('Error fetching mentors:', err);
         // Fallback to local data on any error
         try {
-          const { mentors } = await import('@/data/mentors');
-          setMentors(mentors);
+          const { mentors: localMentors } = await import('@/data/mentors');
+          setMentors(localMentors);
         } catch (fallbackErr) {
           console.error('Fallback data load failed:', fallbackErr);
           setError('Failed to load mentor data');

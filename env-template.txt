@@ -1,0 +1,45 @@
+# ============================================
+# ENVIRONMENT VARIABLES FOR CAREERPATH PLATFORM
+# ============================================
+# 
+# INSTRUCTIONS:
+# 1. Copy this entire file
+# 2. Create a new file named: .env.local
+# 3. Paste the contents
+# 4. Replace all placeholder values with your actual keys
+# 5. Get Supabase keys from: Supabase Dashboard → Settings → API
+# 6. Restart dev server after making changes
+# ============================================
+
+# ============================================
+# SUPABASE CONFIGURATION (REQUIRED)
+# ============================================
+# Get these from: Supabase Dashboard → Settings → API
+
+# Vite/React Frontend Variables
+VITE_SUPABASE_URL=https://YOUR-PROJECT-ID.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-public-key-here
+
+# Next.js Server-Side Variables (if using Next.js)
+NEXT_PUBLIC_SUPABASE_URL=https://YOUR-PROJECT-ID.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-public-key-here
+
+# Service Role Key (for server-side operations - KEEP SECRET!)
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
+
+# ============================================
+# PAYMENT INTEGRATION (OPTIONAL)
+# ============================================
+VITE_RAZORPAY_KEY_ID=your-razorpay-key-id-here
+VITE_RAZORPAY_KEY_SECRET=your-razorpay-key-secret-here
+
+# ============================================
+# CONTACT FORM (OPTIONAL)
+# ============================================
+VITE_WEB3FORMS_ACCESS_KEY=your-web3forms-access-key-here
+
+# ============================================
+# CLOUDINARY (OPTIONAL)
+# ============================================
+VITE_CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name-here
+

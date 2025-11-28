@@ -26,11 +26,6 @@ export const navigationItems: NavigationItem[] = [
     mobileLink: "/jobs"
   },
   {
-    name: "Login",
-    link: "/login",
-    mobileLink: "/login"
-  },
-  {
     name: "Dashboard",
     link: "/dashboard",
     mobileLink: "/dashboard"
@@ -166,3 +161,25 @@ export type BookingStatus = "pending" | "confirmed" | "completed" | "cancelled";
 
 // Application Status
 export type ApplicationStatus = "applied" | "reviewing" | "interview" | "offered" | "rejected";
+
+// Role-based Navigation
+export const roleBasedNavigation = {
+  graduates: [
+    { name: "Home", link: "/" },
+    { name: "Assessments", link: "/assessment" },
+    { name: "Mentors", link: "/mentors" },
+    { name: "Profile", link: "/profile" }
+  ],
+  mentor: [
+    { name: "Home", link: "/" },
+    { name: "Sessions", link: "/sessions" },
+    { name: "Availability", link: "/availability" },
+    { name: "Profile", link: "/profile" }
+  ],
+  company: [
+    { name: "Home", link: "/" },
+    { name: "Jobs", link: "/jobs" },
+    { name: "Mentors", link: "/mentors" },
+    { name: "Profile", link: "/profile" }
+  ]
+};

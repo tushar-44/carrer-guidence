@@ -20,14 +20,16 @@ export interface Mentor {
   responseTime: string;
   specializations: string[];
   achievements: string[];
-  mentor_type?: 'near-peer' | 'professional'; // Added for freemium model
-  vetting_status?: 'pending' | 'approved' | 'rejected'; // Added for vetting system
+  mentor_type?: 'near-peer' | 'professional';
+  vetting_status?: 'pending' | 'approved' | 'rejected';
+  email?: string; // Contact email
+  phone?: string; // Contact phone
 }
 
-export const mentors: Mentor[] = [
+const baseMentors: Mentor[] = [
   {
     id: "m1",
-    name: "Dr. Sarah Johnson",
+    name: "LANA RHODES",
     title: "Senior Software Architect",
     expertise: ["Software Development", "System Design", "Cloud Architecture"],
     experience: 12,
@@ -417,6 +419,46 @@ export const filterMentors = (filters: {
     return true;
   });
 };
+
+// TEST MENTOR - Your Personal Profile for Testing
+const testMentor: Mentor = {
+    id: "test-mentor-1",
+    name: "Test Mentor", // Replace with your name
+    title: "Career Development Specialist",
+    expertise: ["Career Guidance", "Interview Preparation", "Resume Building", "Skill Development"],
+    experience: 3,
+    hourlyRate: 50, // Free for testing - set to 0 for completely free
+    rating: 5.0,
+    totalSessions: 25,
+    availability: [
+      { day: "Monday", slots: ["10:00 AM", "2:00 PM", "4:00 PM", "6:00 PM"] },
+      { day: "Tuesday", slots: ["11:00 AM", "3:00 PM", "5:00 PM"] },
+      { day: "Wednesday", slots: ["10:00 AM", "1:00 PM", "4:00 PM"] },
+      { day: "Thursday", slots: ["9:00 AM", "2:00 PM", "6:00 PM"] },
+      { day: "Friday", slots: ["10:00 AM", "3:00 PM", "5:00 PM"] },
+      { day: "Saturday", slots: ["11:00 AM", "2:00 PM"] }
+    ],
+    bio: "Passionate about helping students and professionals navigate their career paths. I specialize in providing personalized guidance for career transitions, interview preparation, and skill development. Available for testing the booking system!",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop", // Replace with your photo URL
+    languages: ["English", "Hindi"],
+    education: "Master's in Career Counseling", // Update with your education
+    company: "CareerPath Platform",
+    verified: true,
+    responseTime: "Within 1 hour",
+    specializations: ["Career Planning", "Mock Interviews", "LinkedIn Optimization", "Networking Strategies"],
+    achievements: [
+      "Helped 100+ students find their dream careers",
+      "Certified Career Coach",
+      "Expert in tech industry transitions"
+    ],
+    mentor_type: 'professional', // Change to 'near-peer' for free sessions
+    vetting_status: 'approved',
+    email: 'test.mentor@careerpath.dev', // Add your email
+    phone: '+91 XXXXXXXXXX' // Add your phone number
+};
+
+// Combine base mentors with test mentor
+export const mentors: Mentor[] = [...baseMentors, testMentor];
 
 export const getTopMentors = (limit: number = 5): Mentor[] => {
   return [...mentors]

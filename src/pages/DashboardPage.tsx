@@ -3,16 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { SEO } from "@/components/seo/SEO";
 import { Dashboard } from "@/sections/about-me/index";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase, isSupabaseConfigured } from "@/lib/supabaseClient";
 import { Loader2 } from "lucide-react";
 
 interface AssessmentResult {
   id: string;
   user_id: string;
   assessment_id: string;
-  results: {
-    skillScores: Record<string, number>;
-    roadmap: any[];
+  results?: {
+    skillScores?: Record<string, number>;
+    roadmap?: any[];
   };
   created_at: string;
 }
@@ -24,8 +24,29 @@ export function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!isSupabaseConfigured) {
+      // Guest mode fallback
+      setAssessmentData({
+        id: 'mock-assessment',
+        user_id: 'guest',
+        assessment_id: 'mock',
+        results: {
+          skillScores: {
+            React: 82,
+            'TypeScript': 74,
+            'System Design': 58,
+            'Product Thinking': 69
+          },
+          roadmap: []
+        },
+        created_at: new Date().toISOString()
+      });
+      setLoading(false);
+      return;
+    }
+
     if (!authLoading && !user) {
-      navigate('/login');
+      navigate('/auth/login');
       return;
     }
 
@@ -45,11 +66,15 @@ export function DashboardPage() {
 
       if (error) {
         console.error('Error fetching assessment data:', error);
+        setAssessmentData(null);
       } else if (data && data.length > 0) {
         setAssessmentData(data[0]);
+      } else {
+        setAssessmentData(null);
       }
     } catch (error) {
       console.error('Error fetching assessment data:', error);
+      setAssessmentData(null);
     } finally {
       setLoading(false);
     }
@@ -66,7 +91,7 @@ export function DashboardPage() {
     );
   }
 
-  if (!user) {
+  if (!user && isSupabaseConfigured) {
     return null; // Will redirect to login
   }
 

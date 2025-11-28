@@ -13,6 +13,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Missing Supabase environment variables, using placeholder values')
 }
 
+// Single Supabase client instance - used throughout the app
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,

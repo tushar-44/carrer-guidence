@@ -1,44 +1,113 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router';
-import { useUserStore } from '@/stores/userStore';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { SEO } from '@/components/seo/SEO';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { MentorApprovalList } from '@/components/admin/MentorApprovalList';
+import { UserManagement } from '@/components/admin/UserManagement';
+import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
+import { Shield, Users, UserCheck, BarChart3, Settings } from 'lucide-react';
 
 export function AdminPanelPage() {
+  const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
-  const { currentUser } = useUserStore();
+  const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
-    // Mock role check - redirect if not admin
-    if (!currentUser || currentUser.type !== 'mentor') { // Using mentor as admin proxy
-      navigate('/');
-      return;
-    }
-  }, [currentUser, navigate]);
+    if (!loading) {
+      if (!user) {
+        navigate('/auth/login');
+        return;
+      }
 
-  if (!currentUser || currentUser.type !== 'mentor') {
+      // Check if user is admin
+      if (profile && (profile as any).role !== 'admin') {
+        navigate('/dashboard');
+        return;
+      }
+    }
+  }, [user, profile, loading, navigate]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!user || (profile && (profile as any).role !== 'admin')) {
     return null;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-lg shadow-sm p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">Admin Panel</h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="bg-blue-50 p-6 rounded-lg">
-              <h3 className="text-lg font-semibold text-blue-900 mb-2">User Management</h3>
-              <p className="text-blue-700">Manage platform users and roles</p>
-            </div>
-            <div className="bg-green-50 p-6 rounded-lg">
-              <h3 className="text-lg font-semibold text-green-900 mb-2">Content Moderation</h3>
-              <p className="text-green-700">Review and moderate content</p>
-            </div>
-            <div className="bg-purple-50 p-6 rounded-lg">
-              <h3 className="text-lg font-semibold text-purple-900 mb-2">Analytics</h3>
-              <p className="text-purple-700">View platform analytics and reports</p>
-            </div>
+    <>
+      <SEO
+        title="Admin Panel - CareerPath"
+        description="Manage users, mentors, and platform analytics"
+      />
+
+      <div className="container mx-auto py-8 px-4">
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <Shield className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold">Admin Panel</h1>
           </div>
+          <p className="text-muted-foreground">
+            Manage platform operations, users, and analytics
+          </p>
         </div>
+
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="mentors" className="flex items-center gap-2">
+              <UserCheck className="h-4 w-4" />
+              Mentors
+            </TabsTrigger>
+            <TabsTrigger value="users" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Users
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Settings
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6">
+            <AnalyticsDashboard />
+          </TabsContent>
+
+          <TabsContent value="mentors" className="space-y-6">
+            <MentorApprovalList />
+          </TabsContent>
+
+          <TabsContent value="users" className="space-y-6">
+            <UserManagement />
+          </TabsContent>
+
+          <TabsContent value="settings" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Platform Settings</CardTitle>
+                <CardDescription>
+                  Configure platform-wide settings and preferences
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  Settings panel coming soon...
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
-    </div>
+    </>
   );
 }

@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { Loader2, Eye, EyeOff } from "lucide-react";
+import { Loader2, Eye, EyeOff, Home } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ShineBorder } from "@/components/magicui/shine-border";
 import { AnimatedShinyText } from "@/components/magicui/animated-shiny-text";
@@ -101,6 +101,18 @@ export default function SignUpPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex flex-col items-center justify-center p-4">
+      {/* Home Button */}
+      <Link to="/" className="fixed top-6 left-6 z-50">
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-800 shadow-lg"
+        >
+          <Home className="h-4 w-4" />
+          <span className="hidden sm:inline">Home</span>
+        </Button>
+      </Link>
+
       {/* Logo */}
       <div className="mb-8">
         <img

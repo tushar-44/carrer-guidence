@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { FileText, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
-import { supabase, isSupabaseConfigured } from '@/lib/supabaseClient';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import type { Job } from '@/data/jobs';
 import type { ApplicationStatus } from '@/constants/index';

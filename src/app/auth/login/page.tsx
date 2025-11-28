@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, GraduationCap, Github, Linkedin, Sparkles, Shield, Zap, Chrome } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, GraduationCap, Github, Linkedin, Sparkles, Shield, Zap, Chrome, Home } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -26,12 +26,24 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      await signIn({ email: formData.email, password: formData.password });
+      console.log('Attempting login with:', formData.email);
+      const { error } = await signIn({ email: formData.email, password: formData.password });
+      
+      if (error) {
+        console.error('Login error:', error);
+        toast.error(error.message || 'Invalid email or password');
+        setIsLoading(false);
+        return;
+      }
+
+      console.log('Login successful, navigating to dashboard...');
       toast.success('Welcome back! Redirecting to your dashboard...');
-      navigate('/dashboard');
-    } catch {
-      toast.error('An unexpected error occurred');
-    } finally {
+      
+      // Navigate immediately - the auth state will trigger re-render
+      navigate('/dashboard', { replace: true });
+    } catch (err: any) {
+      console.error('Unexpected login error:', err);
+      toast.error(err?.message || 'An unexpected error occurred');
       setIsLoading(false);
     }
   };
@@ -54,22 +66,35 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen pt-16 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20 flex items-center justify-center">
+      {/* Home Button */}
+      <Link to="/" className="fixed top-6 left-6 z-50">
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-800 shadow-lg"
+        >
+          <Home className="h-4 w-4" />
+          <span className="hidden sm:inline">Home</span>
+        </Button>
+      </Link>
+
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Side - Branding */}
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center lg:text-left"
-          >
+          <div className="text-center lg:text-left">
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+            >
             <div className="flex items-center justify-center lg:justify-start mb-8">
               <motion.div
                 whileHover={{ rotate: 360 }}
                 transition={{ duration: 0.5 }}
-                className="p-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl mr-4"
               >
-                <GraduationCap className="h-8 w-8 text-white" />
+                <div className="p-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl mr-4">
+                  <GraduationCap className="h-8 w-8 text-white" />
+                </div>
               </motion.div>
               <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 CareerPath
@@ -91,29 +116,32 @@ export default function LoginPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
               <motion.div
                 whileHover={{ scale: 1.05 }}
-                className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl backdrop-blur-sm border border-white/20"
               >
-                <Sparkles className="h-8 w-8 text-blue-600 mb-2 mx-auto lg:mx-0" />
-                <h3 className="font-semibold mb-1">AI-Powered</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Smart career matching</p>
+                <div className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl backdrop-blur-sm border border-white/20">
+                  <Sparkles className="h-8 w-8 text-blue-600 mb-2 mx-auto lg:mx-0" />
+                  <h3 className="font-semibold mb-1">AI-Powered</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Smart career matching</p>
+                </div>
               </motion.div>
 
               <motion.div
                 whileHover={{ scale: 1.05 }}
-                className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl backdrop-blur-sm border border-white/20"
               >
-                <Shield className="h-8 w-8 text-green-600 mb-2 mx-auto lg:mx-0" />
-                <h3 className="font-semibold mb-1">Secure</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Your data is protected</p>
+                <div className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl backdrop-blur-sm border border-white/20">
+                  <Shield className="h-8 w-8 text-green-600 mb-2 mx-auto lg:mx-0" />
+                  <h3 className="font-semibold mb-1">Secure</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Your data is protected</p>
+                </div>
               </motion.div>
 
               <motion.div
                 whileHover={{ scale: 1.05 }}
-                className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl backdrop-blur-sm border border-white/20"
               >
-                <Zap className="h-8 w-8 text-purple-600 mb-2 mx-auto lg:mx-0" />
-                <h3 className="font-semibold mb-1">Instant</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Real-time insights</p>
+                <div className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl backdrop-blur-sm border border-white/20">
+                  <Zap className="h-8 w-8 text-purple-600 mb-2 mx-auto lg:mx-0" />
+                  <h3 className="font-semibold mb-1">Instant</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Real-time insights</p>
+                </div>
               </motion.div>
             </div>
 
@@ -132,6 +160,7 @@ export default function LoginPage() {
               </div>
             </div>
           </motion.div>
+          </div>
 
           {/* Right Side - Login Form */}
           <motion.div
@@ -236,7 +265,7 @@ export default function LoginPage() {
                       <Checkbox
                         id="remember"
                         checked={formData.rememberMe}
-                        onCheckedChange={(checked) => setFormData({...formData, rememberMe: checked})}
+                        onCheckedChange={(checked) => setFormData({...formData, rememberMe: !!checked})}
                       />
                       <Label htmlFor="remember" className="text-sm">
                         Remember me

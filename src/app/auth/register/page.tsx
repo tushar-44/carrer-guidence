@@ -9,9 +9,24 @@ import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, GraduationCap, Chrome, Github, Linkedin, User, Briefcase, MapPin, CheckCircle, Shield, Sparkles, Gift } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, GraduationCap, Chrome, Github, Linkedin, User, MapPin, CheckCircle, Shield, Sparkles, Gift } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+
+const userTypeOptions = [
+  {
+    value: 'graduates' as const,
+    title: 'Student / Graduate',
+    description: 'Looking for guidance, assessments, and job support',
+    badge: 'Career Seeker'
+  },
+  {
+    value: 'mentor' as const,
+    title: 'Mentor / Coach',
+    description: 'Ready to guide students and host sessions',
+    badge: 'Expert Mentor'
+  }
+]
 
 const careerStages = [
   'High School Student',
@@ -53,6 +68,7 @@ export default function RegisterPage() {
     careerStage: '',
     industry: '',
     location: '',
+    userType: 'graduates' as 'graduates' | 'mentor',
     agreeToTerms: false,
     subscribeNewsletter: true
   });
@@ -83,13 +99,22 @@ export default function RegisterPage() {
       });
 
       if (error) {
-        toast.error(`Registration failed: ${error.message}`);
-      } else {
-        toast.success('Account created successfully! Welcome to CareerPath!');
-        navigate('/dashboard');
+        console.error('Registration error:', error);
+        toast.error(`Registration failed: ${error.message || 'Please try again'}`);
+        setIsLoading(false);
+        return;
       }
-    } catch (error) {
-      toast.error('An unexpected error occurred');
+
+      toast.success('Account created successfully! Welcome to CareerPath!');
+      
+      // Redirect based on user type with delay to allow state sync
+      const dashboardPath = formData.userType === 'mentor' ? '/dashboard/mentor' : '/dashboard/student';
+      setTimeout(() => {
+        navigate(dashboardPath);
+      }, 1000);
+    } catch (err: any) {
+      console.error('Unexpected registration error:', err);
+      toast.error(err?.message || 'An unexpected error occurred');
     } finally {
       setIsLoading(false);
     }
@@ -98,8 +123,7 @@ export default function RegisterPage() {
   const handleSocialLogin = async (provider: string) => {
     try {
       if (provider === 'Google') {
-        const { error } = await signInWithGoogle();
-        if (error) throw error;
+        await signInWithGoogle();
       } else {
         toast.success(`Creating account with ${provider}...`);
         setTimeout(() => {
@@ -113,6 +137,10 @@ export default function RegisterPage() {
 
   const nextStep = () => {
     if (currentStep === 1) {
+      if (!formData.userType) {
+        toast.error('Please select if you are a Student or Mentor');
+        return;
+      }
       if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.confirmPassword) {
         toast.error('Please fill in all required fields');
         return;
@@ -134,19 +162,20 @@ export default function RegisterPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
           {/* Left Side - Benefits */}
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center lg:text-left"
-          >
+          <div className="text-center lg:text-left">
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+            >
             <div className="flex items-center justify-center lg:justify-start mb-8">
               <motion.div
                 whileHover={{ rotate: 360 }}
                 transition={{ duration: 0.5 }}
-                className="p-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl mr-4"
               >
-                <GraduationCap className="h-8 w-8 text-white" />
+                <div className="p-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl mr-4">
+                  <GraduationCap className="h-8 w-8 text-white" />
+                </div>
               </motion.div>
               <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 CareerPath
@@ -193,21 +222,23 @@ export default function RegisterPage() {
             {/* Special Offer */}
             <motion.div
               whileHover={{ scale: 1.02 }}
-              className="p-6 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl border-2 border-green-200 dark:border-green-800"
             >
-              <div className="flex items-center mb-3">
-                <Gift className="h-6 w-6 text-green-600 mr-2" />
-                <Badge className="bg-green-600 text-white">Limited Time</Badge>
+              <div className="p-6 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl border-2 border-green-200 dark:border-green-800">
+                <div className="flex items-center mb-3">
+                  <Gift className="h-6 w-6 text-green-600 mr-2" />
+                  <Badge className="bg-green-600 text-white">Limited Time</Badge>
+                </div>
+                <h3 className="font-bold text-green-800 dark:text-green-300 mb-2">
+                  Free Premium Trial
+                </h3>
+                <p className="text-green-700 dark:text-green-400 text-sm">
+                  Get 30 days of premium features including unlimited mentor sessions
+                  and advanced career analytics - absolutely free!
+                </p>
               </div>
-              <h3 className="font-bold text-green-800 dark:text-green-300 mb-2">
-                Free Premium Trial
-              </h3>
-              <p className="text-green-700 dark:text-green-400 text-sm">
-                Get 30 days of premium features including unlimited mentor sessions
-                and advanced career analytics - absolutely free!
-              </p>
             </motion.div>
           </motion.div>
+          </div>
 
           {/* Right Side - Registration Form */}
           <motion.div
@@ -249,6 +280,37 @@ export default function RegisterPage() {
                     animate={{ opacity: 1, x: 0 }}
                     className="space-y-6"
                   >
+                    {/* Role Selection */}
+                    <div className="space-y-3">
+                      <Label>I am joining as</Label>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {userTypeOptions.map(option => {
+                          const isActive = formData.userType === option.value
+                          return (
+                            <Button
+                              key={option.value}
+                              type="button"
+                              variant="outline"
+                              onClick={() => setFormData({ ...formData, userType: option.value })}
+                              className={`h-auto flex flex-col items-start gap-2 p-4 text-left transition-all ${
+                                isActive
+                                  ? 'border-blue-500 bg-blue-50/70 shadow-lg shadow-blue-500/20'
+                                  : 'border-slate-200 hover:border-blue-300'
+                              }`}
+                            >
+                              <Badge className={isActive ? 'bg-blue-600' : 'bg-slate-200 text-slate-700'}>
+                                {option.badge}
+                              </Badge>
+                              <div>
+                                <h4 className="text-base font-semibold text-slate-900">{option.title}</h4>
+                                <p className="text-sm text-slate-600">{option.description}</p>
+                              </div>
+                            </Button>
+                          )
+                        })}
+                      </div>
+                    </div>
+
                     {/* Social Registration */}
                     <div className="grid grid-cols-3 gap-3">
                       <Button
@@ -459,7 +521,7 @@ export default function RegisterPage() {
                         <Checkbox
                           id="terms"
                           checked={formData.agreeToTerms}
-                          onCheckedChange={(checked) => setFormData({...formData, agreeToTerms: checked})}
+                          onCheckedChange={(checked) => setFormData({...formData, agreeToTerms: !!checked})}
                         />
                         <Label htmlFor="terms" className="text-sm">
                           I agree to the{' '}
@@ -477,7 +539,7 @@ export default function RegisterPage() {
                         <Checkbox
                           id="newsletter"
                           checked={formData.subscribeNewsletter}
-                          onCheckedChange={(checked) => setFormData({...formData, subscribeNewsletter: checked})}
+                          onCheckedChange={(checked) => setFormData({...formData, subscribeNewsletter: !!checked})}
                         />
                         <Label htmlFor="newsletter" className="text-sm">
                           Subscribe to career insights and platform updates

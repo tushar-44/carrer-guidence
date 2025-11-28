@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Progress } from '@/components/ui/progress'
-import { Badge } from '@/components/ui/badge'
 import { Loader2, User, Briefcase, Target, CheckCircle } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
@@ -62,12 +61,12 @@ export default function OnboardingPage() {
     careerGoals: ''
   })
 
-  const { user, session } = useAuth()
+  const { session } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
     if (!session) {
-      navigate('/login')
+      navigate('/auth/login')
     }
   }, [session, navigate])
 

@@ -156,7 +156,7 @@ function Calendar({
             <ChevronDownIcon className={cn("size-4", className)} {...props} />
           )
         },
-        DayButton: CalendarDayButton,
+        DayButton: CalendarDayButton as any,
         WeekNumber: ({ children, ...props }) => {
           return (
             <td {...props}>
@@ -173,15 +173,16 @@ function Calendar({
   )
 }
 
-function CalendarDayButton({
-  className,
-  day,
-  modifiers,
-  ...props
-}: React.ComponentProps<typeof DayButton>) {
+const CalendarDayButton = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentProps<typeof DayButton>
+>(({ className, day, modifiers, ...props }, forwardedRef) => {
   const defaultClassNames = getDefaultClassNames()
 
   const ref = React.useRef<HTMLButtonElement>(null)
+  
+  React.useImperativeHandle(forwardedRef, () => ref.current!)
+  
   React.useEffect(() => {
     if (modifiers.focused) ref.current?.focus()
   }, [modifiers.focused])
@@ -209,6 +210,8 @@ function CalendarDayButton({
       {...props}
     />
   )
-}
+})
+
+CalendarDayButton.displayName = "CalendarDayButton"
 
 export { Calendar, CalendarDayButton }

@@ -1,8 +1,13 @@
 import { navigationItems } from "@/constants/index";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDrawerStore } from "@/stores/drawerStore";
 import { useUserStore } from "@/stores/userStore";
+import { useAuth } from "@/hooks/useAuth";
 import RainbowButton from '@/components/magicui/rainbow-button';
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { useState } from "react";
+import { LogOut } from "lucide-react";
 
 interface MobileNavProps {
   onNavigationClick: () => void; // Callback to close sidebar
@@ -10,7 +15,10 @@ interface MobileNavProps {
 
 export function MobileNav({ onNavigationClick }: MobileNavProps) {
   const { open: openDrawer } = useDrawerStore();
-  const { isAuthenticated } = useUserStore();
+  const { isAuthenticated, logout } = useUserStore();
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleNavClick = (item: typeof navigationItems[0]) => {
     // Handle Contact button specifically
@@ -25,6 +33,37 @@ export function MobileNav({ onNavigationClick }: MobileNavProps) {
     onNavigationClick();
   };
 
+  const handleSignOut = async () => {
+    if (isSigningOut) return;
+    
+    setIsSigningOut(true);
+    onNavigationClick(); // Close sidebar immediately
+    
+    try {
+      const result = await signOut();
+      
+      if (result?.error) {
+        console.error('Sign out error:', result.error);
+        toast.error('Failed to sign out. Please try again.');
+        setIsSigningOut(false);
+        return;
+      }
+      
+      // Clear user store
+      logout();
+      
+      // Navigate to home
+      navigate('/');
+      
+      // Show success message
+      toast.success('Signed out successfully');
+    } catch (error) {
+      console.error('Unexpected error signing out:', error);
+      toast.error('An unexpected error occurred. Please try again.');
+      setIsSigningOut(false);
+    }
+  };
+
   const filteredNavigationItems = navigationItems.filter(item => {
     if (item.name === "Dashboard" && !isAuthenticated) return false;
     if (item.name === "Login" && isAuthenticated) return false; // Hide login when logged in
@@ -32,7 +71,7 @@ export function MobileNav({ onNavigationClick }: MobileNavProps) {
   });
 
   return (
-    <nav className="flex flex-col gap-2 flex-1 p-4">
+    <nav className="flex flex-col gap-2 flex-1 p-4 pb-6">
       {filteredNavigationItems.map((item) => {
         // Special handling for Contact item
         if (item.name === "Contact") {
@@ -73,6 +112,22 @@ export function MobileNav({ onNavigationClick }: MobileNavProps) {
           </div>
         );
       })}
+      
+      {/* Sign Out Button for authenticated users */}
+      {isAuthenticated && (
+        <div className="mt-auto pt-4 border-t border-border">
+          <Button
+            onClick={handleSignOut}
+            disabled={isSigningOut}
+            variant="outline"
+            size="lg"
+            className="w-full font-heading text-md flex items-center justify-center gap-2"
+          >
+            <LogOut className="w-4 h-4" />
+            {isSigningOut ? 'Signing out...' : 'Sign Out'}
+          </Button>
+        </div>
+      )}
     </nav>
   );
 }

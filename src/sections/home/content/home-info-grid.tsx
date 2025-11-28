@@ -61,31 +61,47 @@ export function HomeInfoGrid() {
   }, []);
 
   return (
-    <div ref={gridRef} className="flex flex-col gap-8 items-center">
-      {/* Description */}
-      <p className="font-body font-light text-[18px] text-white leading-relaxed text-center max-w-2xl">
-        CareerPath empowers students and professionals to unlock their potential through AI-driven career assessments, one-on-one mentorship from industry leaders, and a comprehensive job marketplace. Whether you're just starting your journey or looking to pivot to a new field, our platform provides the tools, insights, and connections you need to make informed decisions and achieve your career goals with confidence.
-      </p>
+    <div ref={gridRef} className="flex flex-col gap-8 items-center w-full px-4 sm:px-6 md:px-8">
+      {/* Description with better visibility */}
+      <div className="relative">
+        {/* Text backdrop for better readability */}
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm rounded-2xl -z-10"></div>
+        <p className="font-body font-light text-[16px] sm:text-[18px] md:text-[20px] text-white leading-relaxed text-center max-w-3xl mx-auto px-6 py-4 relative z-10 drop-shadow-lg">
+          CareerPath empowers students and professionals to unlock their potential through AI-driven career assessments, one-on-one mentorship from industry leaders, and a comprehensive job marketplace. Whether you're just starting your journey or looking to pivot to a new field, our platform provides the tools, insights, and connections you need to make informed decisions and achieve your career goals with confidence.
+        </p>
+      </div>
 
-      {/* Contact Info */}
-      <div className="flex flex-col gap-3 items-center">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <button onClick={handleConnectClick} className="bg-brand-gold text-brand-slate hover:bg-brand-gold/90 px-6 py-3 rounded-full font-heading text-sm">Get Started</button>
-          <a href="/mentors" className="bg-brand-green text-brand-cream hover:bg-brand-green/90 px-6 py-3 rounded-full font-heading text-sm inline-block text-center">Book a Mentor</a>
+      {/* Contact Info with prominent buttons */}
+      <div className="flex flex-col gap-4 items-center w-full">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full">
+          <button 
+            onClick={handleConnectClick} 
+            className="group relative bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold px-8 py-4 rounded-full font-heading text-base sm:text-lg shadow-2xl shadow-purple-500/50 hover:shadow-purple-500/70 transition-all duration-300 transform hover:scale-105 min-w-[180px] flex items-center justify-center"
+          >
+            <span className="relative z-10">GET STARTED</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-pink-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full"></div>
+          </button>
+          <a 
+            href="/mentors" 
+            className="group relative bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold px-8 py-4 rounded-full font-heading text-base sm:text-lg shadow-2xl shadow-blue-500/50 hover:shadow-blue-500/70 transition-all duration-300 transform hover:scale-105 min-w-[180px] flex items-center justify-center text-center"
+          >
+            <span className="relative z-10">BOOK A MENTOR</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full"></div>
+          </a>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 bg-black/30 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20">
           <button
             onClick={handleCopy}
-            className="transition-opacity p-1 hover:bg-accent rounded z-10 cursor-pointer"
+            className="transition-opacity p-1 hover:bg-white/20 rounded z-10 cursor-pointer"
             aria-label="Copy email address"
           >
             {copied ? (
-              <Check className="w-4 h-4 text-green-500" />
+              <Check className="w-4 h-4 text-green-400" />
             ) : (
-            <Copy className="w-4 h-4 text-slate-700 hover:text-slate-900" />
+            <Copy className="w-4 h-4 text-white/80 hover:text-white" />
             )}
           </button>
-          <span className="font-body font-light text-base text-white">
+          <span className="font-body font-light text-sm sm:text-base text-white drop-shadow-md">
             {emailDisplay}
           </span>
         </div>

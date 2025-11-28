@@ -1,9 +1,26 @@
-import { useEffect, useState } from 'react'
-import Spline from '@splinetool/react-spline'
+import { useEffect, useState, lazy, Suspense } from 'react'
 import type { Application } from '@splinetool/runtime'
+
+// Lazy load Spline to reduce initial bundle size
+const Spline = lazy(() => import('@splinetool/react-spline'))
 
 export function ParticleSphere() {
   const [splineApp, setSplineApp] = useState<Application | null>(null)
+  const [shouldLoad, setShouldLoad] = useState(false)
+
+  // Only load Spline after initial page render
+  useEffect(() => {
+    const timer = setTimeout(() => setShouldLoad(true), 1000)
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (!shouldLoad) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Loading 3D scene...</div>
+      </div>
+    )
+  }
 
   // Function to get appropriate zoom level based on screen size
   const getZoomLevel = () => {
@@ -44,10 +61,16 @@ export function ParticleSphere() {
   }, [splineApp])
 
   return (
-    <Spline 
-      scene="/scene-f0f0f0.splinecode"
-      onLoad={onLoad}
-      style={{ width: '100%', height: '100%' }}
-    />
+    <Suspense fallback={
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Loading 3D scene...</div>
+      </div>
+    }>
+      <Spline 
+        scene="/scene-f0f0f0.splinecode"
+        onLoad={onLoad}
+        style={{ width: '100%', height: '100%' }}
+      />
+    </Suspense>
   )
 }

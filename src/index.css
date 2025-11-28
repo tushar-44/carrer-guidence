@@ -1,7 +1,46 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Local Font Declarations */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/Inter/web/Inter-Regular.woff2') format('woff2');
+}
 
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/Inter/web/Inter-Medium.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/Inter/web/Inter-SemiBold.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/Inter/web/Inter-Bold.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Azonix';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/Azonix/Azonix.otf') format('opentype');
+}
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -420,4 +459,36 @@
 
 .glow-pink {
   box-shadow: 0 0 30px oklch(0.70 0.20 330 / 0.3);
+}
+
+/* Advanced Homepage Animations */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-20px) translateX(10px);
+    opacity: 0.6;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
